@@ -118,6 +118,8 @@ class Question(models.Model):
        else:
            return False
 
+    def __str__(self):
+        return self.question_text
 
 #  <HINT> Create a Choice Model with:
     # Used to persist choice content for a question

@@ -79,6 +79,7 @@ class Lesson(models.Model):
 # Enrollment model
 # <HINT> Once a user enrolled a class, an enrollment entry should be created between the user and course
 # And we could use the enrollment to track information such as exam submissions
+
 class Enrollment(models.Model):
     AUDIT = 'audit'
     HONOR = 'honor'
@@ -94,10 +95,16 @@ class Enrollment(models.Model):
     mode = models.CharField(max_length=5, choices=COURSE_MODES, default=AUDIT)
     rating = models.FloatField(default=5.0)
 
+def _build_choice_dict(choice_text, select_type):
+    return {
+        'choice_text': choice_text,
+        'select_type': select_type
+    }
+
 class Question(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     question_text = models.TextField()
-    grade = models.FloatField(default=0.0)
+    grade = models.IntegerField(default=1)
 # <HINT> Create a Question Model with:
     # Used to persist question content for a course
     # Has a One-To-Many (or Many-To-Many if you want to reuse questions) relationship with course
@@ -117,6 +124,30 @@ class Question(models.Model):
            return True
        else:
            return False
+
+    def build_answer_list_for_template(self, selected_ids):
+        quest_dict = { 
+            'question_text': self.question_text,
+            'choices': [], 
+            }
+        choices = self.choice_set.all()
+        for choice in choices:
+            if choice.is_correct:
+                if choice.id in selected_ids:
+                    # user selected correct option
+                    tmp = _build_choice_dict(choice.choice_text, 'correct')
+                else:
+                    # user missed correct option
+                    tmp = _build_choice_dict(choice.choice_text, 'missed')
+            else:
+                if choice.id in selected_ids:
+                    # user selected incorrect option
+                    tmp = _build_choice_dict(choice.choice_text, 'incorrect')
+                else:
+                    # unselected option
+                    tmp = _build_choice_dict(choice.choice_text, 'unselected')
+            quest_dict['choices'].append(tmp)
+        return quest_dict
 
     def __str__(self):
         return self.question_text

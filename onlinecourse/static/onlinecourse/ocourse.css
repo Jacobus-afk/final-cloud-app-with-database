@@ -1,0 +1,14 @@
+.correct {
+  color: green;
+}
+.incorrect {
+  color: red;
+}
+.missed {
+  color: orange;
+}
+.course_card {
+  padding-top: 4px;
+  padding-left: 20px;
+  padding-bottom: 20px;
+}
